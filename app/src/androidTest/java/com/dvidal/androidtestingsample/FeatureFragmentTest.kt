@@ -1,12 +1,9 @@
 package com.dvidal.androidtestingsample
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -22,6 +19,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -31,9 +30,6 @@ import org.junit.runner.RunWith
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class FeatureFragmentTest {
-
-    @get:Rule
-    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -50,6 +46,9 @@ class FeatureFragmentTest {
     @Test
     fun whenInitFragment_shouldInvokeInitPage() {
 
+        val states = MutableStateFlow<FeatureContract.State>(FeatureContract.State.Idle)
+        every { featureViewModel.states } returns states
+
         launchFragmentInHiltContainer<FeatureFragment>()
 
         verify( exactly = 1) {
@@ -59,6 +58,9 @@ class FeatureFragmentTest {
 
     @Test
     fun whenPressButton_shouldInvokeGoToSecondPage() {
+
+        val states = MutableStateFlow<FeatureContract.State>(FeatureContract.State.Idle)
+        every { featureViewModel.states } returns states
 
         launchFragmentInHiltContainer<FeatureFragment>()
 
@@ -71,7 +73,10 @@ class FeatureFragmentTest {
     @Test
     fun whenEventNavigateToSecondPage_shouldCallForFeatureFragmentDirections() {
 
-        val events = MutableLiveData<FeatureContract.Event>()
+        val states = MutableStateFlow<FeatureContract.State>(FeatureContract.State.Idle)
+        every { featureViewModel.states } returns states
+
+        val events = MutableSharedFlow<FeatureContract.Event>()
         every { featureViewModel.events } returns events
 
         val navController = mockk<NavController>(relaxed = true)
@@ -80,7 +85,7 @@ class FeatureFragmentTest {
             Navigation.setViewNavController(requireView(), navController)
         }
 
-        events.value = FeatureContract.Event.NavigateToSecondPage
+        events.tryEmit(FeatureContract.Event.NavigateToSecondPage)
         verify(exactly = 1) {
             navController.navigate(FeatureFragmentDirections.actionGoToSecondFragment())
         }
@@ -89,7 +94,7 @@ class FeatureFragmentTest {
     @Test
     fun whenDisplayViewExample1_shouldViewExample1DisplayedOnScreen() {
 
-        val states = MutableLiveData<FeatureContract.State>()
+        val states = MutableStateFlow<FeatureContract.State>(FeatureContract.State.Idle)
         every { featureViewModel.states } returns states
 
         states.value = FeatureContract.State.DisplayViewExample1
@@ -102,7 +107,7 @@ class FeatureFragmentTest {
     @Test
     fun whenDisplayViewExample2_shouldViewExample2DisplayedOnScreen() {
 
-        val states = MutableLiveData<FeatureContract.State>()
+        val states = MutableStateFlow<FeatureContract.State>(FeatureContract.State.Idle)
         every { featureViewModel.states } returns states
 
         states.value = FeatureContract.State.DisplayViewExample1
@@ -115,7 +120,7 @@ class FeatureFragmentTest {
     @Test
     fun whenDisplayViewExample3_shouldViewExample3DisplayedOnScreen() {
 
-        val states = MutableLiveData<FeatureContract.State>()
+        val states = MutableStateFlow<FeatureContract.State>(FeatureContract.State.Idle)
         every { featureViewModel.states } returns states
 
         states.value = FeatureContract.State.DisplayViewExample1

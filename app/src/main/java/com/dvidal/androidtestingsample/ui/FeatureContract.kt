@@ -1,15 +1,17 @@
 package com.dvidal.androidtestingsample.ui
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 
 sealed class FeatureContract {
 
     interface ViewModel {
 
-        val states: LiveData<State>
-        val events: LiveData<Event>
+        val states: StateFlow<State>
+        val events: SharedFlow<Event>
 
-        fun invokeAction(action: Action)
+        fun invokeAction(action: Action): Job
     }
 
     sealed class Action {
@@ -20,6 +22,7 @@ sealed class FeatureContract {
 
     sealed class State {
 
+        object Idle: State()
         object DisplayViewExample1: State()
         object DisplayViewExample2: State()
         object DisplayViewExample3: State()

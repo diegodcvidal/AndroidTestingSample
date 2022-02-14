@@ -6,10 +6,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dvidal.androidtestingsample.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_feature.*
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class FeatureFragment: Fragment(R.layout.fragment_feature) {
@@ -20,8 +22,10 @@ class FeatureFragment: Fragment(R.layout.fragment_feature) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.invokeAction(FeatureContract.Action.InitPage)
 
-        viewModel.states.observe(viewLifecycleOwner, Observer(::handleViewStates))
-        viewModel.events.observe(viewLifecycleOwner, Observer(::handleViewEvents))
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.events.collectLatest(::handleViewEvents)
+            viewModel.states.collect(::handleViewStates)
+        }
 
         bt_action.setOnClickListener { viewModel.invokeAction(FeatureContract.Action.GoToSecondPage) }
     }
@@ -31,6 +35,7 @@ class FeatureFragment: Fragment(R.layout.fragment_feature) {
             FeatureContract.State.DisplayViewExample1 -> view_example1.isVisible = true
             FeatureContract.State.DisplayViewExample2 -> view_example2.isVisible = true
             FeatureContract.State.DisplayViewExample3 -> view_example3.isVisible = true
+            FeatureContract.State.Idle -> {}
         }
     }
 
