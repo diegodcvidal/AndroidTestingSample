@@ -105,11 +105,11 @@ class FeatureFragmentTest {
         val states = MutableLiveData<FeatureContract.State>()
         every { featureViewModel.states } returns states
 
-        states.value = FeatureContract.State.DisplayViewExample1
+        states.value = FeatureContract.State.DisplayViewExample2
 
         launchFragmentInHiltContainer<FeatureFragment>()
 
-        Espresso.onView(withId(R.id.view_example1)).check(matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withId(R.id.view_example2)).check(matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
@@ -118,10 +118,10 @@ class FeatureFragmentTest {
         val states = MutableLiveData<FeatureContract.State>()
         every { featureViewModel.states } returns states
 
-        states.value = FeatureContract.State.DisplayViewExample1
+        states.value = FeatureContract.State.DisplayViewExample3
 
         launchFragmentInHiltContainer<FeatureFragment>()
 
-        Espresso.onView(withId(R.id.view_example1)).check(matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(withId(R.id.view_example3)).check(matches(ViewMatchers.isDisplayed()))
     }
 }
