@@ -1,0 +1,127 @@
+package com.dvidal.androidtestingsample
+
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.dvidal.androidtestingsample.ui.FeatureContract
+import com.dvidal.androidtestingsample.ui.FeatureFragment
+import com.dvidal.androidtestingsample.ui.FeatureFragmentDirections
+import com.dvidal.androidtestingsample.ui.FeatureViewModel
+import dagger.hilt.android.testing.BindValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@ExperimentalCoroutinesApi
+@HiltAndroidTest
+@RunWith(AndroidJUnit4::class)
+class FeatureFragmentTest {
+
+    @get:Rule
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @BindValue
+    @JvmField
+    val featureViewModel: FeatureViewModel = mockk(relaxed = true)
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
+    }
+
+    @Test
+    fun whenInitFragment_shouldInvokeInitPage() {
+
+        launchFragmentInHiltContainer<FeatureFragment>()
+
+        verify( exactly = 1) {
+            featureViewModel.invokeAction(FeatureContract.Action.InitPage)
+        }
+    }
+
+    @Test
+    fun whenPressButton_shouldInvokeGoToSecondPage() {
+
+        launchFragmentInHiltContainer<FeatureFragment>()
+
+        Espresso.onView(withId(R.id.bt_action)).perform(ViewActions.click())
+        verify( exactly = 1) {
+            featureViewModel.invokeAction(FeatureContract.Action.GoToSecondPage)
+        }
+    }
+
+    @Test
+    fun whenEventNavigateToSecondPage_shouldCallForFeatureFragmentDirections() {
+
+        val events = MutableLiveData<FeatureContract.Event>()
+        every { featureViewModel.events } returns events
+
+        val navController = mockk<NavController>(relaxed = true)
+
+        launchFragmentInHiltContainer<FeatureFragment>() {
+            Navigation.setViewNavController(requireView(), navController)
+        }
+
+        events.value = FeatureContract.Event.NavigateToSecondPage
+        verify(exactly = 1) {
+            navController.navigate(FeatureFragmentDirections.actionGoToSecondFragment())
+        }
+    }
+
+    @Test
+    fun whenDisplayViewExample1_shouldViewExample1DisplayedOnScreen() {
+
+        val states = MutableLiveData<FeatureContract.State>()
+        every { featureViewModel.states } returns states
+
+        states.value = FeatureContract.State.DisplayViewExample1
+
+        launchFragmentInHiltContainer<FeatureFragment>()
+
+        Espresso.onView(withId(R.id.view_example1)).check(matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun whenDisplayViewExample2_shouldViewExample2DisplayedOnScreen() {
+
+        val states = MutableLiveData<FeatureContract.State>()
+        every { featureViewModel.states } returns states
+
+        states.value = FeatureContract.State.DisplayViewExample1
+
+        launchFragmentInHiltContainer<FeatureFragment>()
+
+        Espresso.onView(withId(R.id.view_example1)).check(matches(ViewMatchers.isDisplayed()))
+    }
+
+    @Test
+    fun whenDisplayViewExample3_shouldViewExample3DisplayedOnScreen() {
+
+        val states = MutableLiveData<FeatureContract.State>()
+        every { featureViewModel.states } returns states
+
+        states.value = FeatureContract.State.DisplayViewExample1
+
+        launchFragmentInHiltContainer<FeatureFragment>()
+
+        Espresso.onView(withId(R.id.view_example1)).check(matches(ViewMatchers.isDisplayed()))
+    }
+}

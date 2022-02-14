@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AndroidTestingSample</string>
+    <string name="second_fragment">SECOND FRAGMENT</string>
+    <string name="go_to_second_page">go to second page</string>
+</resources>
