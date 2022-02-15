@@ -8,29 +8,38 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.dvidal.androidtestingsample.R
+import com.dvidal.androidtestingsample.databinding.FragmentFeatureBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_feature.*
 
 @AndroidEntryPoint
 class FeatureFragment: Fragment(R.layout.fragment_feature) {
 
     private val viewModel: FeatureContract.ViewModel by viewModels<FeatureViewModel>()
 
+    private var currentBinding: FragmentFeatureBinding? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        currentBinding = FragmentFeatureBinding.bind(view)
+
         viewModel.invokeAction(FeatureContract.Action.InitPage)
 
         viewModel.states.observe(viewLifecycleOwner, Observer(::handleViewStates))
         viewModel.events.observe(viewLifecycleOwner, Observer(::handleViewEvents))
 
-        bt_action.setOnClickListener { viewModel.invokeAction(FeatureContract.Action.GoToSecondPage) }
+        currentBinding?.btAction?.setOnClickListener { viewModel.invokeAction(FeatureContract.Action.GoToSecondPage) }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        currentBinding = null
     }
 
     private fun handleViewStates(state: FeatureContract.State) {
         when(state) {
-            FeatureContract.State.DisplayViewExample1 -> view_example1.isVisible = true
-            FeatureContract.State.DisplayViewExample2 -> view_example2.isVisible = true
-            FeatureContract.State.DisplayViewExample3 -> view_example3.isVisible = true
+            FeatureContract.State.DisplayViewExample1 -> currentBinding?.viewExample1?.isVisible = true
+            FeatureContract.State.DisplayViewExample2 -> currentBinding?.viewExample2?.isVisible = true
+            FeatureContract.State.DisplayViewExample3 -> currentBinding?.viewExample3?.isVisible = true
         }
     }
 
